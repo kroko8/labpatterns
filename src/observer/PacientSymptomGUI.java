@@ -1,14 +1,14 @@
 package observer;
 
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import observer.Covid19Pacient;
 
-import domain.Covid19Pacient;
 import domain.Symptom;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -24,93 +24,104 @@ public class PacientSymptomGUI extends JFrame {
 	private JLabel errorLabel;
 	private JLabel lblPacient;
 	private JLabel labelPacient;
+	private Covid19Pacient pacient;
 
-	
 	/**
 	 * Create the frame.
 	 */
 	public PacientSymptomGUI(Covid19Pacient p) {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(200, 100, 450, 300);
-		contentPane = new JPanel();
-		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		
+	    this.pacient = p;
+	    setTitle("Manage Symptoms");
+	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    setBounds(200, 100, 450, 300);
+	    contentPane = new JPanel();
+	    contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+	    setContentPane(contentPane);
+	    contentPane.setLayout(null);
+
 		JLabel lblSelectSymptom = new JLabel("Select Symptom");
 		lblSelectSymptom.setBounds(32, 68, 100, 16);
 		contentPane.add(lblSelectSymptom);
-		
+
 		symptomComboBox = new JComboBox<Symptom>();
 		symptomComboBox.setBounds(195, 57, 192, 27);
-		symptomComboBox.addItem(new Symptom("fiebre",100,5));
-		symptomComboBox.addItem(new Symptom("tos seca",100,5));
-		symptomComboBox.addItem(new Symptom("astenia",100,5));
-		symptomComboBox.addItem(new Symptom("expectoracion",100,5));
-		
-		symptomComboBox.addItem(new Symptom("disnea",100,3));
-		symptomComboBox.addItem(new Symptom("dolor de garganta",100,3));
-		symptomComboBox.addItem(new Symptom("cefalea",100,3));
-		symptomComboBox.addItem(new Symptom("mialgia",100,3));
-		symptomComboBox.addItem(new Symptom("escalofríos",100,3));
+		symptomComboBox.addItem(new Symptom("fiebre", 100, 5));
+		symptomComboBox.addItem(new Symptom("tos seca", 100, 5));
+		symptomComboBox.addItem(new Symptom("astenia", 100, 5));
+		symptomComboBox.addItem(new Symptom("expectoracion", 100, 5));
 
-		symptomComboBox.addItem(new Symptom("náuseas o vómitos",100,1));
-		symptomComboBox.addItem(new Symptom("congestión nasal",100,1));
-		symptomComboBox.addItem(new Symptom("diarrea",100,1));
-		symptomComboBox.addItem(new Symptom("hemoptisis",100,1));
-		symptomComboBox.addItem(new Symptom("congestión conjuntival",100,1));
-		
-		
+		symptomComboBox.addItem(new Symptom("disnea", 100, 3));
+		symptomComboBox.addItem(new Symptom("dolor de garganta", 100, 3));
+		symptomComboBox.addItem(new Symptom("cefalea", 100, 3));
+		symptomComboBox.addItem(new Symptom("mialgia", 100, 3));
+		symptomComboBox.addItem(new Symptom("escalofríos", 100, 3));
+
+		symptomComboBox.addItem(new Symptom("náuseas o vómitos", 100, 1));
+		symptomComboBox.addItem(new Symptom("congestión nasal", 100, 1));
+		symptomComboBox.addItem(new Symptom("diarrea", 100, 1));
+		symptomComboBox.addItem(new Symptom("hemoptisis", 100, 1));
+		symptomComboBox.addItem(new Symptom("congestión conjuntival", 100, 1));
+
 		contentPane.add(symptomComboBox);
-		
+
 		JLabel lblSymptomWeight = new JLabel("Symptom weight");
 		lblSymptomWeight.setBounds(32, 96, 125, 16);
 		contentPane.add(lblSymptomWeight);
-		
+
 		weightField = new JTextField();
 		weightField.setBounds(195, 91, 130, 26);
 		contentPane.add(weightField);
 		weightField.setColumns(10);
-		
+
 		JButton btnNewButton = new JButton("Add Symptom");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				errorLabel.setText(" ");
-				if (new Integer(weightField.getText())<=3) {
-		    	System.out.println("Symptom added :"+(Symptom)symptomComboBox.getSelectedItem());
+				try {
+					int weight = Integer.parseInt(weightField.getText());
+					if (weight <= 3 && weight >= 1) {
+						Symptom selectedSymptom = (Symptom) symptomComboBox.getSelectedItem();
+						pacient.addSymptom(selectedSymptom, weight);
+						JOptionPane.showMessageDialog(null, "Symptom added: " + selectedSymptom.getName());
+					} else {
+						errorLabel.setText("ERROR: Weight must be between [1..3]");
+					}
+				} catch (NumberFormatException ex) {
+					errorLabel.setText("ERROR: Weight must be a valid integer");
+				}
 
-				//addSymptomByName ...
-				
-			} else errorLabel.setText("ERROR, Weight between [1..3]");
-				
 			}
 		});
 		btnNewButton.setBounds(88, 202, 117, 29);
 		contentPane.add(btnNewButton);
-		
+
 		btnRemoveSymptom = new JButton("Remove Symptom");
 		btnRemoveSymptom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				errorLabel.setText(" ");
 
-		    	System.out.println("Symptom removed :"+(Symptom)symptomComboBox.getSelectedItem());
+				Symptom selectedSymptom = (Symptom) symptomComboBox.getSelectedItem();
+				Symptom removedSymptom = pacient.removeSymptomByName(selectedSymptom.getName());
+				if (removedSymptom != null) {
+					JOptionPane.showMessageDialog(null, "Symptom removed: " + removedSymptom.getName());
+				} else {
+					errorLabel.setText("ERROR: Symptom not found");
+				}
 
-				//removeSymptomByName...
-				
-			} 
+			}
 		});
 		btnRemoveSymptom.setBounds(255, 202, 147, 29);
 		contentPane.add(btnRemoveSymptom);
-		
+
 		errorLabel = new JLabel("");
 		errorLabel.setBounds(117, 146, 238, 16);
 		contentPane.add(errorLabel);
-		
+
 		lblPacient = new JLabel("Pacient:");
 		lblPacient.setBounds(210, 17, 61, 16);
 		contentPane.add(lblPacient);
-		
-	    labelPacient = new JLabel("New label");
+
+		labelPacient = new JLabel("New label");
 		labelPacient.setFont(new Font("Lucida Grande", Font.BOLD, 13));
 		labelPacient.setBounds(271, 17, 131, 16);
 		labelPacient.setText(p.getName());

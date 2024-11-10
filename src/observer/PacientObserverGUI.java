@@ -1,8 +1,8 @@
 package observer;
-
+import observer.Covid19Pacient;
 import java.util.Iterator;
-import java.util.Observable;
-import java.util.Observer;
+
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -12,15 +12,16 @@ import domain.Symptom;
 
 import javax.swing.JLabel;
 
-public class PacientObserverGUI extends JFrame{
+public class PacientObserverGUI extends JFrame implements Observer {
 
-	private JPanel contentPane;
-	private final JLabel symptomLabel = new JLabel("");
+    private JPanel contentPane;
+    private final JLabel symptomLabel = new JLabel("Still no symptoms");
+    private Covid19Pacient pacient;
 
-	/**
-	 * Create the frame.
-	 */
-	public PacientObserverGUI() {
+    public PacientObserverGUI(Covid19Pacient pacient) {
+        this.pacient = pacient;
+        pacient.addObserver(this); // Registrar como observador
+		
 		setTitle("Pacient symptoms");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(650, 100, 200, 300);
@@ -33,5 +34,16 @@ public class PacientObserverGUI extends JFrame{
 		symptomLabel.setText("Still no symptoms");
 		this.setVisible(true);
 	}
+	
+    @Override
+    public void update() {
+        StringBuilder sb = new StringBuilder("<html>Symptoms:<br>");
+        Set<Symptom> symptoms = pacient.getSymptoms();
+        for (Symptom symptom : symptoms) {
+            sb.append("- ").append(symptom.getName()).append("<br>");
+        }
+        sb.append("</html>");
+        symptomLabel.setText(sb.toString());
+    }
 
 }
